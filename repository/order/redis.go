@@ -1,4 +1,4 @@
-package orders
+package order
 
 import (
 	"context"
@@ -6,8 +6,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/AdamWalker95/orders-api/model"
-	"github.com/redis/go-redis"
 )
 
 type RedisRepo struct {
@@ -15,7 +16,7 @@ type RedisRepo struct {
 }
 
 func orderIDKey(id uint64) string {
-	return fmt.Springf("order:%d", id)
+	return fmt.Sprintf("order:%d", id)
 }
 
 func (r *RedisRepo) Insert(ctx context.Context, order model.Order) error {
@@ -112,8 +113,8 @@ func (r *RedisRepo) Update(ctx context.Context, order model.Order) error {
 }
 
 type FindAllPage struct {
-	Size   uint
-	Offset uint
+	Size   uint64
+	Offset uint64
 }
 
 type FindResult struct {
