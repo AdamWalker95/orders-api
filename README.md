@@ -1,6 +1,6 @@
 <h1>Requirements</h1>
-A copy of Redis is required for running software. If you need to download it you can do so by running the following on a linux terminal:
-sudo apt-get install redis
+<h3>A copy of Redis is required for running software. If you need to download it you can do so by running the following on a linux terminal:</h3>
+<p>sudo apt-get install redis</p>
 
 <h1>REST calls for testing system</h1>
 <h2>Adding Records:</h2>
@@ -14,19 +14,19 @@ curl -sS localhost:3000/orders/[order_id] | jq
 
 <h2>Updating Records</h2>
 <h3>Examples below, adject as you see fit</h3>
-curl -X PUT -d '{"status":"shipped"}' -sS "localhost:3000/orders/[order_id]" | jq
-curl -X PUT -d '{"status":"completed"}' -sS "localhost:3000/orders/[order_id]" | jq
+<p>curl -X PUT -d '{"status":"shipped"}' -sS "localhost:3000/orders/[order_id]" | jq</p>
+<p>curl -X PUT -d '{"status":"completed"}' -sS "localhost:3000/orders/[order_id]" | jq</p>
 
 <h2>Delete Record</h2>
 curl -X DELETE localhost:3000/orders/[order_id]
 
 <h1>Commands for using Redis</h1>
-<h3>Useful Troubleshooting if REST commands are failing</h3>
+Useful Troubleshooting if REST commands are failing
 
 <h2>Find Record on redis by running:</h2>
--redis-cli
--GET "order:[order_id]"
+<p>-redis-cli</p>
+<p>-GET "order:[order_id]"</p>
 
 <h2>View all orders by running:</h2>
--redis-cli
--SMEMBERS orders
+<p>-redis-cli</p>
+<p>-SMEMBERS orders</p>
