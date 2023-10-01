@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 
 	"github.com/AdamWalker95/orders-api/model"
 	"github.com/AdamWalker95/orders-api/repository/order"
@@ -22,7 +21,7 @@ type Order struct {
 
 func (h *Order) Create(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		CustomerID uuid.UUID        `json:"customer_id"`
+		CustomerID model.Customer   `json:"customer_id"`
 		LineItems  []model.LineItem `json:"line_items"`
 	}
 
