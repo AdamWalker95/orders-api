@@ -1,6 +1,13 @@
+<h1>Summary of Project</h1>
+The software on this repository is used for database management. The software accesses a local database (redis) and is used to add, retrieve, update, and delete records via REST API. At the moment, the database holds two types of records; orders, and users.
+
 <h1>Requirements</h1>
 <h3>A copy of Redis is required for running software. If you need to download it you can do so by running the following on a linux terminal:</h3>
 <p>sudo apt-get install redis</p>
+<p>After this you will need three terminals:</p>
+<p>(1). For running the database [run 'redis-server']</p>
+<p>(2). For running the program [run 'go run main.go']</p>
+<p>(3). For running the REST commands, below are many examples that can be used from</p>
 
 <h1>REST calls for testing system</h1>
 <h2>Add User</h2>
@@ -25,7 +32,7 @@ curl -sS localhost:3000/orders | jq
 curl -sS localhost:3000/orders/[order_id] | jq
 
 <h2>Updating Orders</h2>
-<h3>Examples below, adject as you see fit</h3>
+<h3>Examples below</h3>
 <p>curl -X PUT -d '{"status":"shipped"}' -sS "localhost:3000/orders/[order_id]" | jq</p>
 <p>curl -X PUT -d '{"status":"completed"}' -sS "localhost:3000/orders/[order_id]" | jq</p>
 
