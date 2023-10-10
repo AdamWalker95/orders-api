@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/go-chi/chi/v5"
 
@@ -16,6 +17,15 @@ type Client struct {
 	Repo *client.RedisRepo
 }
 
+func (h *Client) ValidatePassword(password string) string {
+	if len(password) < 8 || regexp.MustCompile(`\d`).MatchString(password) == false {
+		errMsg := "Error: Password is either less than 8 characters or doesn't contain a number"
+		fmt.Println(errMsg)
+		return errMsg
+	}
+
+	return ""
+}
 func (h *Client) Create(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Email    string `json:"email"`
@@ -25,6 +35,13 @@ func (h *Client) Create(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		fmt.Println("failed: ", err)
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := h.ValidatePassword(body.Password); err != "" {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("\n" + string(err) + "\n"))
 		return
 	}
 
@@ -91,6 +108,13 @@ func (h *Client) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		fmt.Println("failed to find user:", err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.ValidatePassword(body.NewPassword); err != "" {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("\n" + string(err) + "\n"))
 		return
 	}
 
