@@ -9,6 +9,12 @@ curl -X POST -d '{"email":"email@email.com","password":"password123"}' localhost
 <h2>Retrieve User</h2>
 curl -sS localhost:3000/user/[email] | jq
 
+<h2>Update User's Password</h2>
+curl -X PUT -d '{"password":"password456"}' -sS "localhost:3000/user/email@email.com" | jq
+
+<h2>Delete User</h2>
+curl -X DELETE localhost:3000/user/email@email.com
+
 <h2>Add Orders:</h2>
 curl -X POST -d '{"customer_id":[{"username":"bob"}],"line_items":[{"item_id":"'$(uuidgen)'","quantity":5,"price":200}]}' localhost:3000/orders
 

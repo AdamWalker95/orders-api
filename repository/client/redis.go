@@ -60,3 +60,44 @@ func (r *RedisRepo) FindByID(ctx context.Context, user string) (model.LoginDetai
 
 	return foundUser, nil
 }
+
+func (r *RedisRepo) DeleteByID(ctx context.Context, user string) error {
+
+	txn := r.Client.TxPipeline()
+
+	err := txn.Del(ctx, user).Err()
+	if errors.Is(err, redis.Nil) {
+		txn.Discard()
+		return ErrNotExist
+	} else if err != nil {
+		txn.Discard()
+		return fmt.Errorf("get user: %w", err)
+	}
+
+	if err := txn.SRem(ctx, "users", user).Err(); err != nil {
+		txn.Discard()
+		return fmt.Errorf("failed to remove from users: %w", err)
+	}
+
+	if _, err := txn.Exec(ctx); err != nil {
+		return fmt.Errorf("failed to exec: %w", err)
+	}
+
+	return nil
+}
+
+func (r *RedisRepo) Update(ctx context.Context, user model.LoginDetails) error {
+	data, err := json.Marshal(user)
+	if err != nil {
+		return fmt.Errorf("failed to marshal user details: %w", err)
+	}
+
+	err = r.Client.SetXX(ctx, user.Email, string(data), 0).Err()
+	if errors.Is(err, redis.Nil) {
+		return ErrNotExist
+	} else if err != nil {
+		return fmt.Errorf("update user: %w", err)
+	}
+
+	return nil
+}

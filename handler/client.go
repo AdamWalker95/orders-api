@@ -54,20 +54,71 @@ func (h *Client) Create(w http.ResponseWriter, r *http.Request) {
 func (h *Client) GetByID(w http.ResponseWriter, r *http.Request) {
 	userHTML := chi.URLParam(r, "id")
 
-	fmt.Println("userHTML: ", userHTML)
-
 	user, err := h.Repo.FindByID(r.Context(), userHTML)
 	if errors.Is(err, client.ErrNotExist) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
-		fmt.Println("failed to find by user:", err)
+		fmt.Println("failed to find user:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(user); err != nil {
 		fmt.Println("failed to marshal:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+// This is only used for updating password details for now
+func (h *Client) UpdateByID(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		NewPassword string `json:"password"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userHTML := chi.URLParam(r, "id")
+
+	user, err := h.Repo.FindByID(r.Context(), userHTML)
+	if errors.Is(err, client.ErrNotExist) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	} else if err != nil {
+		fmt.Println("failed to find user:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	user.Password = body.NewPassword
+
+	err = h.Repo.Update(r.Context(), user)
+	if err != nil {
+		fmt.Println("failed to insert:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		fmt.Println("failed to marshal:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Client) DeleteByID(w http.ResponseWriter, r *http.Request) {
+	userHTML := chi.URLParam(r, "id")
+
+	err := h.Repo.DeleteByID(r.Context(), userHTML)
+	if errors.Is(err, client.ErrNotExist) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	} else if err != nil {
+		fmt.Println("failed to find user:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

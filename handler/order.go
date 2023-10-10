@@ -128,6 +128,7 @@ func (h *Order) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// This is only used for updating order status for now
 func (h *Order) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Status string `json:"status"`

@@ -35,6 +35,8 @@ func (a *App) loadUserRoutes(router chi.Router) {
 
 	router.Post("/", userHandler.Create)
 	router.Get("/{id}", userHandler.GetByID)
+	router.Put("/{id}", userHandler.UpdateByID)
+	router.Delete("/{id}", userHandler.DeleteByID)
 }
 
 func (a *App) loadOrderRoutes(router chi.Router) {
