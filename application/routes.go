@@ -28,8 +28,9 @@ func (a *App) loadRoutes() {
 
 func (a *App) loadUserRoutes(router chi.Router) {
 	userHandler := &handler.Client{
-		Repo: &client.RedisRepo{
-			Client: a.rdb,
+		Repo: &client.SqlRepo{
+			Client:       a.db,
+			DatabaseName: a.config.MySqlDatabaseName,
 		},
 	}
 

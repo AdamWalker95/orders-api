@@ -1,15 +1,11 @@
 package model
 
-type Customer struct {
-	Username string `json:"username"`
+type CustomerId struct {
+	CustomerID int `json:"customer_id"`
 }
 
 type LoginDetails struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type CustomerDetails struct {
-	CustomerID Customer `json:"customer_id"`
-	Orders     []Order  `json:"Orders"`
+	CustomerID int    `json:"customer_id"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
 }

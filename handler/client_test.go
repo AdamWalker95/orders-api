@@ -11,7 +11,7 @@ import (
 func TestCPasswordValidation(t *testing.T) {
 
 	userHandler := &handler.Client{
-		Repo: &client.RedisRepo{
+		Repo: &client.SqlRepo{
 			Client: nil,
 		},
 	}

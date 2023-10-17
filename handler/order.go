@@ -21,7 +21,7 @@ type Order struct {
 
 func (h *Order) Create(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		CustomerID model.Customer   `json:"customer_id"`
+		CustomerID model.CustomerId `json:"customer_id"`
 		LineItems  []model.LineItem `json:"line_items"`
 	}
 

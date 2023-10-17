@@ -7,14 +7,13 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/go-chi/chi/v5"
-
 	"github.com/AdamWalker95/orders-api/model"
 	"github.com/AdamWalker95/orders-api/repository/client"
+	"github.com/go-chi/chi/v5"
 )
 
 type Client struct {
-	Repo *client.RedisRepo
+	Repo *client.SqlRepo
 }
 
 func (h *Client) ValidatePassword(password string) string {
@@ -34,6 +33,16 @@ func (h *Client) Create(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		fmt.Println("failed: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userHTML := chi.URLParam(r, "id")
+
+	// Checks to see if email is already in use
+	_, emailInCurrentRecords := h.Repo.FindByID(userHTML)
+	if emailInCurrentRecords == nil {
+		fmt.Println("Record Already exists for email address")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -71,7 +80,7 @@ func (h *Client) Create(w http.ResponseWriter, r *http.Request) {
 func (h *Client) GetByID(w http.ResponseWriter, r *http.Request) {
 	userHTML := chi.URLParam(r, "id")
 
-	user, err := h.Repo.FindByID(r.Context(), userHTML)
+	user, err := h.Repo.FindByID(userHTML)
 	if errors.Is(err, client.ErrNotExist) {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -101,7 +110,7 @@ func (h *Client) UpdateByID(w http.ResponseWriter, r *http.Request) {
 
 	userHTML := chi.URLParam(r, "id")
 
-	user, err := h.Repo.FindByID(r.Context(), userHTML)
+	user, err := h.Repo.FindByID(userHTML)
 	if errors.Is(err, client.ErrNotExist) {
 		w.WriteHeader(http.StatusNotFound)
 		return
