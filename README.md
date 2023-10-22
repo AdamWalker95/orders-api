@@ -19,8 +19,8 @@ The software on this repository is used for database management. The software ac
 <p>Then access database data by running any of the below curl commands on a second terminal:</p>
 
 <h2>Curl Commands for Users</h2>
-<p>Login user (This will move user's orders from MySql to Redis)</p>
-<p>curl -X POST -d '{"email":"[customer's email]","password":"[customer's password]"}' localhost:3000/login</p>
+<p>Login user (This will move user's orders from MySql to Redis):</p>
+<p>`curl -X POST -d '{"email":"[customer's email]","password":"[customer's password]"}' localhost:3000/login`</p>
 
 <p>Add user:</p>
 <p>`curl -X POST -d '{"email":"[email address]","password":"[password]"}' localhost:3000/user`</p>
