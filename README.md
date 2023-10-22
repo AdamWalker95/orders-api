@@ -19,21 +19,24 @@ The software on this repository is used for database management. The software ac
 <p>Then access database data by running any of the below curl commands on a second terminal:</p>
 
 <h2>Curl Commands for Users</h2>
+<p>Login user (This will move user's orders from MySql to Redis)</p>
+<p>curl -X POST -d '{"email":"[customer's email]","password":"[customer's password]"}' localhost:3000/login</p>
+
 <p>Add user:</p>
-<p>`curl -X POST -d '{"email":"email@email.com","password":"password123"}' localhost:3000/user`</p>
+<p>`curl -X POST -d '{"email":"[email address]","password":"[password]"}' localhost:3000/user`</p>
 
 <p>Retrieve user data:</p>
 <p>`curl -sS localhost:3000/user/[email] | jq`</p>
 
 <p>Update user's Password:</p>
-<p>`curl -X PUT -d '{"password":"password456"}' -sS "localhost:3000/user/email@email.com" | jq`</p>
+<p>`curl -X PUT -d '{"password":[new password]}' -sS "localhost:3000/user/[customer's email]" | jq`</p>
 
 <p>Delete user</p>
 <p>`curl -X DELETE localhost:3000/user/email@email.com`</p>
 
 <h2>Curl Commands for Orders</h2>
 <p>Add Orders:</p>
-<p>`curl -X POST -d '{"customer_id":[{"username":"bob"}],"line_items":[{"item_id":"'$(uuidgen)'","quantity":5,"price":200}]}' localhost:3000/orders`</p>
+<p>`curl -X POST -d '{"customer_id":[customer_id]}' localhost:3000/orders`</p>
 
 <p>Retrieving all orders:</p>
 <p>`curl -sS localhost:3000/orders | jq`</p>
