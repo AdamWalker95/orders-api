@@ -10,8 +10,7 @@ import (
 )
 
 type SqlRepo struct {
-	Client       *sql.DB
-	DatabaseName string
+	Client *sql.DB
 }
 
 func (s *SqlRepo) doesCustAlreadyExist(email string) bool {

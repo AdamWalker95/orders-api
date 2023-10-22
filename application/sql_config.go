@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/AdamWalker95/orders-api/model"
 )
 
 // Gets Database name from config
@@ -66,7 +68,17 @@ func (a *App) StartSqlDatabase() (*sql.DB, error) {
 }
 
 // Creates tables for database
-func createProductTable(db *sql.DB) error {
+func createTables(db *sql.DB) error {
+
+	err := createCustomersTable(db)
+	if err != nil {
+		return err
+	}
+
+	return createOrdersTable(db)
+}
+
+func createCustomersTable(db *sql.DB) error {
 
 	query := `CREATE TABLE IF NOT EXISTS CUSTOMERS(customer_id int primary key auto_increment, email text, password text)`
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
@@ -78,6 +90,76 @@ func createProductTable(db *sql.DB) error {
 	_, err = res.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("Error %s when getting rows affected", err)
+	}
+
+	return nil
+}
+
+func createOrdersTable(db *sql.DB) error {
+
+	query := `CREATE TABLE IF NOT EXISTS ORDERS(order_id int primary key auto_increment, customer_id int, created_at datetime, shipped_at datetime, completed_at datetime)`
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+	res, err := db.ExecContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("Error %s when creating product table", err)
+	}
+	_, err = res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Error %s when getting rows affected", err)
+	}
+
+	if err := Insert(db); err != nil {
+		return fmt.Errorf("Error %s when creating/finding records", err)
+	}
+
+	return nil
+}
+
+func Insert(db *sql.DB) error {
+
+	/*ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelfunc()
+
+	for i := 1; i < 5; i++ {
+		query := "INSERT INTO ORDERS(customer_id) VALUES (?)"
+
+		stmt, err := db.PrepareContext(ctx, query)
+		if err != nil {
+			return fmt.Errorf("Error %s when preparing SQL statement", err)
+		}
+		defer stmt.Close()
+		res, err := stmt.ExecContext(ctx, 13)
+		if err != nil {
+			return fmt.Errorf("Error %s when inserting row into products table", err)
+		}
+		_, err = res.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("Error %s when finding rows affected", err)
+		}
+
+		fmt.Printf("Successfully Created Order %d", i)
+	}*/
+
+	if err := FindByID(db); err != nil {
+		return fmt.Errorf("Error %s when finding records", err)
+	}
+	return nil
+}
+
+func FindByID(db *sql.DB) error {
+
+	for i := 1; i < 5; i++ {
+		var foundOrder model.Order
+
+		query := "SELECT * FROM ORDERS WHERE order_id = ?;"
+		row := db.QueryRow(query, i)
+		err := row.Scan(&foundOrder.OrderID, &foundOrder.CustomerID, &foundOrder.CreatedAt, &foundOrder.ShippedAt, &foundOrder.CompletedAt)
+		if err != nil {
+			return fmt.Errorf("Failed to find order on system: %w", err)
+		}
+
+		fmt.Println(foundOrder)
 	}
 
 	return nil

@@ -19,6 +19,36 @@ func orderIDKey(id uint64) string {
 	return fmt.Sprintf("order:%d", id)
 }
 
+func (r *RedisRepo) InsertMulti(ctx context.Context, orders map[int]model.Order) error {
+	for _, order := range orders {
+		data, err := json.Marshal(order)
+		if err != nil {
+			return fmt.Errorf("failed to encode order: %w", err)
+		}
+
+		key := orderIDKey(order.OrderID)
+
+		txn := r.Client.TxPipeline()
+
+		res := txn.SetNX(ctx, key, string(data), 0)
+		if err := res.Err(); err != nil {
+			txn.Discard()
+			return fmt.Errorf("failed to set: %w", err)
+		}
+
+		if err := txn.SAdd(ctx, "orders", key).Err(); err != nil {
+			txn.Discard()
+			return fmt.Errorf("failed to add to orders set: %w", err)
+		}
+
+		if _, err := txn.Exec(ctx); err != nil {
+			return fmt.Errorf("failed to exec: %w", err)
+		}
+	}
+
+	return nil
+}
+
 func (r *RedisRepo) Insert(ctx context.Context, order model.Order) error {
 	data, err := json.Marshal(order)
 	if err != nil {

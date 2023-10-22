@@ -16,13 +16,13 @@ import (
 )
 
 type Order struct {
-	Repo *order.RedisRepo
+	RedisRepo *order.RedisRepo
+	SqlRepo   *order.SqlRepo
 }
 
 func (h *Order) Create(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		CustomerID model.CustomerId `json:"customer_id"`
-		LineItems  []model.LineItem `json:"line_items"`
+		CustomerID uint64 `json:"customer_id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -35,11 +35,10 @@ func (h *Order) Create(w http.ResponseWriter, r *http.Request) {
 	order := model.Order{
 		OrderID:    rand.Uint64(),
 		CustomerID: body.CustomerID,
-		LineItems:  body.LineItems,
 		CreatedAt:  &now,
 	}
 
-	err := h.Repo.Insert(r.Context(), order)
+	err := h.RedisRepo.Insert(r.Context(), order)
 	if err != nil {
 		fmt.Println("failed to insert:", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -72,7 +71,7 @@ func (h *Order) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	const size = 50
-	res, err := h.Repo.FindAll(r.Context(), order.FindAllPage{
+	res, err := h.RedisRepo.FindAll(r.Context(), order.FindAllPage{
 		Offset: cursor,
 		Size:   size,
 	})
@@ -111,7 +110,7 @@ func (h *Order) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	o, err := h.Repo.FindByID(r.Context(), orderID)
+	o, err := h.RedisRepo.FindByID(r.Context(), orderID)
 	if errors.Is(err, order.ErrNotExist) {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -150,7 +149,7 @@ func (h *Order) UpdateByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	theOrder, err := h.Repo.FindByID(r.Context(), orderID)
+	theOrder, err := h.RedisRepo.FindByID(r.Context(), orderID)
 	if errors.Is(err, order.ErrNotExist) {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -182,7 +181,7 @@ func (h *Order) UpdateByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Repo.Update(r.Context(), theOrder)
+	err = h.RedisRepo.Update(r.Context(), theOrder)
 	if err != nil {
 		fmt.Println("failed to insert:", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -208,7 +207,7 @@ func (h *Order) DeleteByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Repo.DeleteByID(r.Context(), orderID)
+	err = h.RedisRepo.DeleteByID(r.Context(), orderID)
 	if errors.Is(err, order.ErrNotExist) {
 		w.WriteHeader(http.StatusNotFound)
 		return

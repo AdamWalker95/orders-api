@@ -25,6 +25,7 @@ func (h *Client) ValidatePassword(password string) string {
 
 	return ""
 }
+
 func (h *Client) Create(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Email    string `json:"email"`
@@ -37,10 +38,8 @@ func (h *Client) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userHTML := chi.URLParam(r, "id")
-
 	// Checks to see if email is already in use
-	_, emailInCurrentRecords := h.Repo.FindByID(userHTML)
+	_, emailInCurrentRecords := h.Repo.FindByID(body.Email)
 	if emailInCurrentRecords == nil {
 		fmt.Println("Record Already exists for email address")
 		w.WriteHeader(http.StatusBadRequest)
@@ -85,7 +84,7 @@ func (h *Client) GetByID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
-		fmt.Println("failed to find user:", err)
+		fmt.Println("Error occurred when trying to find user:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -115,7 +114,7 @@ func (h *Client) UpdateByID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
-		fmt.Println("failed to find user:", err)
+		fmt.Println("Error occurred when trying to find user:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -151,7 +150,7 @@ func (h *Client) DeleteByID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
-		fmt.Println("failed to find user:", err)
+		fmt.Println("Error occurred when trying to find user:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

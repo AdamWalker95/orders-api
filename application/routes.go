@@ -20,17 +20,33 @@ func (a *App) loadRoutes() {
 		w.WriteHeader(http.StatusOK)
 	})
 
+	router.Route("/login", a.loadLoginRoutes)
 	router.Route("/user", a.loadUserRoutes)
 	router.Route("/orders", a.loadOrderRoutes)
 
 	a.router = router
 }
 
+func (a *App) loadLoginRoutes(router chi.Router) {
+	loginHandler := &handler.Login{
+		OrdRedisRepo: &order.RedisRepo{
+			Client: a.rdb,
+		},
+		OrdSqlRepo: &order.SqlRepo{
+			Client: a.db,
+		},
+		UsrSqlRepo: &client.SqlRepo{
+			Client: a.db,
+		},
+	}
+
+	router.Post("/", loginHandler.Login)
+}
+
 func (a *App) loadUserRoutes(router chi.Router) {
 	userHandler := &handler.Client{
 		Repo: &client.SqlRepo{
-			Client:       a.db,
-			DatabaseName: a.config.MySqlDatabaseName,
+			Client: a.db,
 		},
 	}
 
@@ -42,8 +58,11 @@ func (a *App) loadUserRoutes(router chi.Router) {
 
 func (a *App) loadOrderRoutes(router chi.Router) {
 	orderHandler := &handler.Order{
-		Repo: &order.RedisRepo{
+		RedisRepo: &order.RedisRepo{
 			Client: a.rdb,
+		},
+		SqlRepo: &order.SqlRepo{
+			Client: a.db,
 		},
 	}
 

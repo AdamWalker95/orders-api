@@ -32,7 +32,7 @@ func New(config Config) *App {
 	//defer db.Close()
 
 	//Configures Tables
-	err = createProductTable(db)
+	err = createTables(db)
 	if err != nil {
 		panic(err)
 	}
