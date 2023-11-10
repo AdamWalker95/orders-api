@@ -22,6 +22,9 @@ The software on this repository is used for database management. The software ac
 <p>Login user (This will move user's orders from MySql to Redis):</p>
 <p>`curl -X POST -d '{"email":"[customer's email]","password":"[customer's password]"}' localhost:3000/login`</p>
 
+<p>Logout user (This will remove all orders from Redis):</p>
+<p>curl -X POST localhost:3000/logout</p>
+
 <p>Add user:</p>
 <p>`curl -X POST -d '{"email":"[email address]","password":"[password]"}' localhost:3000/user`</p>
 
