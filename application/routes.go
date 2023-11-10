@@ -21,6 +21,7 @@ func (a *App) loadRoutes() {
 	})
 
 	router.Route("/login", a.loadLoginRoutes)
+	router.Route("/logout", a.loadLogoutRoutes)
 	router.Route("/user", a.loadUserRoutes)
 	router.Route("/orders", a.loadOrderRoutes)
 
@@ -41,6 +42,22 @@ func (a *App) loadLoginRoutes(router chi.Router) {
 	}
 
 	router.Post("/", loginHandler.Login)
+}
+
+func (a *App) loadLogoutRoutes(router chi.Router) {
+	loginHandler := &handler.Login{
+		OrdRedisRepo: &order.RedisRepo{
+			Client: a.rdb,
+		},
+		OrdSqlRepo: &order.SqlRepo{
+			Client: a.db,
+		},
+		UsrSqlRepo: &client.SqlRepo{
+			Client: a.db,
+		},
+	}
+
+	router.Post("/", loginHandler.Logout)
 }
 
 func (a *App) loadUserRoutes(router chi.Router) {

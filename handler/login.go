@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/AdamWalker95/orders-api/repository/client"
 	"github.com/AdamWalker95/orders-api/repository/order"
@@ -53,6 +54,31 @@ func (h *Login) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+}
+
+func (h *Login) Logout(w http.ResponseWriter, r *http.Request) {
+	cursorStr := r.URL.Query().Get("cursor")
+	if cursorStr == "" {
+		cursorStr = "0"
+	}
+
+	const decimal = 10
+	const bitSize = 64
+	cursor, err := strconv.ParseUint(cursorStr, decimal, bitSize)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	const size = 50
+	err = h.OrdRedisRepo.RemoveMulti(r.Context(), order.FindAllPage{
+		Offset: cursor,
+		Size:   size,
+	})
+	if err != nil {
+		criticalErr := fmt.Sprint("failed to Remove all orders from system when logging off: ", err)
+		panic(criticalErr)
+	}
 }
 
 func (h *Login) moveOrdersFromSqlToRedis(ctx context.Context, customerID int) error {

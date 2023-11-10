@@ -49,6 +49,46 @@ func (r *RedisRepo) InsertMulti(ctx context.Context, orders map[int]model.Order)
 	return nil
 }
 
+func (r *RedisRepo) RemoveMulti(ctx context.Context, page FindAllPage) error {
+	res := r.Client.SScan(ctx, "orders", page.Offset, "*", int64(page.Size))
+
+	keys, _, err := res.Result()
+	if err != nil {
+		return fmt.Errorf("failed to get order ids: %w", err)
+	}
+
+	if len(keys) == 0 {
+		return nil
+	}
+
+	xs, err := r.Client.MGet(ctx, keys...).Result()
+	if err != nil {
+		return fmt.Errorf("failed to get orders: %w", err)
+	}
+
+	orders := make([]model.Order, len(xs))
+
+	for i, x := range xs {
+		x := x.(string)
+		var order model.Order
+
+		err := json.Unmarshal([]byte(x), &order)
+		if err != nil {
+			return fmt.Errorf("failed to decode order json: %w", err)
+		}
+
+		orders[i] = order
+	}
+
+	for _, delOrd := range orders {
+		if err = r.DeleteByID(ctx, delOrd.OrderID); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (r *RedisRepo) Insert(ctx context.Context, order model.Order) error {
 	data, err := json.Marshal(order)
 	if err != nil {
