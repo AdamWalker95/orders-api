@@ -1,0 +1,3 @@
+[submodule "orders-api-frontend"]
+	path = orders-api-frontend
+	url = https://github.com/AdamWalker95/orders-api-frontend
